@@ -2,12 +2,11 @@ const Koa = require('koa');
 const Router = require('koa-router');
 const app = new Koa();
 var router = new Router();
+const send = require('koa-send')
 const aws = require('aws-sdk')
 const config = require('./config')
 const axios = require('axios');
 const uuid = require('uuid')
-
-console.log(config)
 
 aws.config = new aws.Config({
   accessKeyId: config.ACCESS_KEY_ID,
@@ -16,26 +15,24 @@ aws.config = new aws.Config({
 
 const client = new aws.S3()
  
+router.post('/', async (ctx, next) => {
+  await send(ctx, 'index.html');
+})
+
 router.get('/', (ctx, next) => {
   const data = {
     contentType: 'image/png'
   }
 
   let params = {
-    // ContentType: fileExtension(data.contentType),
+    ContentType: data.contentType,
     Expires: 60 * 60,
-    // ACL: 'bucket-owner-full-control',
     Bucket: config.BUCKET_NAME,
     Key: randomName() + '.' + fileExtension(data.contentType)
   }
-  console.log(params)
+  
   const url = client.getSignedUrl('putObject', params)
-  console.log(url)
-  ctx.body = 'Hello Koa Get';
-})
-
-router.post('/', (ctx, next) => {
-  ctx.body = 'Hello Koa Post'
+  ctx.body = url;
 })
 
 app
