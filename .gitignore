@@ -54,3 +54,5 @@ node_modules/
 
 # sonarqube
 .scannerwork
+
+config.js
